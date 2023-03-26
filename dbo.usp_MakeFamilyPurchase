@@ -1,0 +1,12 @@
+CREATE PROCEDURE usp_MakeFamilyPurchase
+@FamilySurName varchar(255)
+AS
+begin try
+    SELECT dbo.Family.SurName, dbo.Family.BudgetValue,dbo.Basket.Value
+    FROM dbo.Family inner join dbo.Basket on dbo.Family.ID = dbo.Basket.ID_Family
+	where @FamilySurName = dbo.Family.SurName
+	UPDATE dbo.Family SET BudgetValue = dbo.Family.BudgetValue - sum(dbo.Basket.Value)
+	end try
+	begin catch
+	PRINT 'Ошибка, такой семьи нет'
+	end catch
