@@ -1,0 +1,16 @@
+create trigger TR_Basket_insert_update
+on dbo.Basket after insert, update
+ as if update (ID_SKU)
+ begin
+        if (select dbo.Basket.Value as Value,dbo.Basket.DiscountValue as DiscountValue
+                from dbo.Basket
+                where dbo.Basket.ID_SKU > count(2)) is not null
+		begin
+			UPDATE dbo.Basket set DiscountValue = Value * 5%
+
+		end
+
+        else 
+            update dbo.Basket set DiscountValue = 0
+end
+	
