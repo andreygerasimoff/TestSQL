@@ -1,16 +1,26 @@
 create trigger TR_Basket_insert_update
 on dbo.Basket after insert, update
  as if update (ID_SKU)
- begin
-        if (select dbo.Basket.Value as Value,dbo.Basket.DiscountValue as DiscountValue
-                from dbo.Basket
-                where dbo.Basket.ID_SKU > count(2)) is not null
-		begin
-			UPDATE dbo.Basket set DiscountValue = Value * 5%
+begin
+ update dbo.Basket
+ set DiscountValue = b.Value * 0.05 
+ from dbo.Basket n
+ inner join inserted b
+ on b.ID = n.ID
+ where n.ID_SKU 
+  in (select ID_SKU
+ from inserted
+  group by ID_SKU
+   having count(ID_SKU) > 2);
+ update dbo.Basket
+ set DiscountValue = 0
+ from dbo.Basket n
+ inner join inserted b 
+ on b.ID = n.ID
+ where n.ID_SKU 
+  in (select ID_SKU
+ from inserted
+  group by ID_SKU
+   having count(ID_SKU) < 2);
 
-		end
-
-        else 
-            update dbo.Basket set DiscountValue = 0
 end
-	
